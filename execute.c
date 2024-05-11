@@ -43,3 +43,14 @@ char* get_bin_path() {
     fprintf(stderr, "Folder bin nie został znaleziony w zmiennej PATH.\n");
     return NULL;
 }
+
+void execute_program(char *program_name, char *args[]) {
+    // Wywołanie funkcji execvp, która szuka programu w ścieżkach systemowych
+    // i wykonuje go z podanymi argumentami
+    if (execvp(program_name, args) == -1) {
+        // Jeśli execvp zwróciło się z błędem, wyświetlamy komunikat o błędzie
+        perror("execvp");
+        // I kończymy działanie programu
+        exit(EXIT_FAILURE);
+    }
+}
