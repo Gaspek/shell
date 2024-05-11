@@ -8,11 +8,24 @@
 
 #define MAX_ARGS 10
 
-int main(int argc, char *argv[]){    
-    char *args[MAX_ARGS +1];
+int main(int argc, char *argv[]){	
     char command[100];
     char* history_path = get_history_file_path();
     FILE *history_file = fopen(history_path, "r");
+    char *args[MAX_ARGS+1];
+
+    if (argc < 0) {
+        fprintf(stderr, "Error 403 to few arguments. Use: %s file_name\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    
+    /*for (int i = 1; i < argc; i++) {
+        printf("Zawartość pliku %s:\n", argv[i]);
+        printFileContent(argv[i]);
+        printf("\n");
+    }
+    */
+    
     if(history_file != NULL)
     {
         char history_line[100];
@@ -29,7 +42,7 @@ int main(int argc, char *argv[]){
     }
     while(1) 
     {
-        printf(":) ");
+        printf(">> ");
         if(fgets(command, sizeof(command), stdin) == NULL )
         {
             printf("fgets returned NULL\n"); // Add a print statement to check if fgets returns NULL
@@ -38,16 +51,6 @@ int main(int argc, char *argv[]){
         command[strcspn(command, "\n")] = '\0';
         printf("Command entered: %s\n", command);
         com_history(command);
-    }
-    if (argc < 2) {
-        fprintf(stderr, "Error 403 to few arguments. Use: %s file_name\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-    
-    for (int i = 1; i < argc; i++) {
-        printf("Zawartość pliku %s:\n", argv[i]);
-        printFileContent(argv[i]);
-        printf("\n");
     }
 
     char *token = strtok(command, " ");
@@ -63,6 +66,6 @@ int main(int argc, char *argv[]){
     }
     args[i] = NULL;
 
-
     return EXIT_SUCCESS;
 }
+

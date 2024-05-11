@@ -17,7 +17,7 @@ char* get_history_file_path() {
         fprintf(stderr, "Error: Memory allocation failed.\n");
         exit(EXIT_FAILURE);
     }
-    sprintf(history_path, "%s/history_log.txt\n", home_dir);
+    sprintf(history_path, "%s/history_log.txt", home_dir);
     printf("%s", history_path);
     return history_path;
 }

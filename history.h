@@ -1,4 +1,5 @@
 #ifndef HISTORY_H
 #define HITORY_H
-void* com_history();
+char* get_history_file_path();
+void com_history();
 #endif
