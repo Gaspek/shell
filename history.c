@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h> 
+#include "read.h"
 
 #define MAX_COMMANDS 20
 #define MAX_LINE_LENGTH 100
@@ -26,18 +27,10 @@ char* get_history_file_path() {
     return history_path;
 }
 
-void print_history(char* history_path){
-    FILE *history_file = fopen(history_path, "r");
-    if(history_file != NULL){
-        char history_line[MAX_LINE_LENGTH];
-        printf("Command history:\n");
-        while(fgets(history_line, sizeof(history_line), history_file) != NULL)
-        {
-            printf("%s", history_line);
-        }
-        fclose(history_file);
-    }
-    else perror("fopen");
+void print_history(){
+    char* history_path = get_history_file_path();
+    printf("Command history:\n");
+    printFileContent(history_path);
 }
 
 void com_history(char *command) {

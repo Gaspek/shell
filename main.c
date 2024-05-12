@@ -15,11 +15,9 @@
 void sigquit_handler(int signum) {
     if (signum == SIGQUIT) {
         printf("Received SIGQUIT signal. Printing entire history:\n");
-        char* history_path = get_history_file_path();
-        print_history(history_path);
-        free(history_path);
-        
+        print_history();
     }
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[]){	
@@ -36,7 +34,7 @@ int main(int argc, char *argv[]){
             continue; // Empty command
         }
         input[strcspn(input, "\n")] = '\0';
-        printf("Command entered: %s\n", input);  //Testing confirmation
+        //printf("Command entered: %s\n", input);  //Testing confirmation
         com_history(input);
         
         char *token = strtok(input, " ");
@@ -52,7 +50,7 @@ int main(int argc, char *argv[]){
             }
         }
         if(strcmp(args[0], "history") == 0){
-            print_history(history_path);
+            print_history();
             continue;
         }
         if(strcmp(args[0], "exit") == 0) {
