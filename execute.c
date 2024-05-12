@@ -1,56 +1,80 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <errno.h>
 
-#define MAX_PATH_LENGTH 1024
 
-char* get_bin_path() {
-    char* path_env = getenv("PATH"); // Pobierz zmienną PATH
-    if (path_env == NULL) {
-        perror("getenv");
-        return NULL;
-    }
 
-    char* path_copy = strdup(path_env); // Skopiuj zmienną PATH, aby nie zmieniać oryginału
-    if (path_copy == NULL) {
-        perror("strdup");
-        return NULL;
-    }
-
-    char* token = strtok(path_copy, ":"); // Podziel ścieżki za pomocą dwukropka
-    while (token != NULL) {
-        char* bin_path = (char*)malloc(MAX_PATH_LENGTH); // Utwórz bufor na ścieżkę do folderu "bin"
-        if (bin_path == NULL) {
-            perror("malloc");
-            free(path_copy);
-            return NULL;
+void execute(char *args[], int background) {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) { // Child process
+        if (background) {
+            setpgid(0, 0);
         }
-
-        snprintf(bin_path, MAX_PATH_LENGTH, "%s/bin", token); // Sklej ścieżkę do folderu "bin"
-        
-        if (access(bin_path, F_OK) != -1) { // Sprawdź czy istnieje folder "bin"
-            free(path_copy);
-            return bin_path;
+        execvp(args[0], args);
+        perror("exec");
+        exit(EXIT_FAILURE);
+    } else {
+        // Parent process
+        if (!background) {
+            waitpid(pid, NULL, 0);
         }
-
-        free(bin_path);
-        token = strtok(NULL, ":");
     }
-
-    free(path_copy);
-    fprintf(stderr, "Folder bin nie został znaleziony w zmiennej PATH.\n");
-    return NULL;
 }
 
-void execute_program(char *program_name, char *args[]) {
-    // Wywołanie funkcji execvp, która szuka programu w ścieżkach systemowych
-    // i wykonuje go z podanymi argumentami
-    if (execvp(program_name, args) == -1) {
-        // Jeśli execvp zwróciło się z błędem, wyświetlamy komunikat o błędzie
-        perror("execvp");
-        // I kończymy działanie programu
+void redirect_output(char *args[], char *output_file) {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
         exit(EXIT_FAILURE);
+    } else if (pid == 0) { // Child process
+        int fd = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        if (fd < 0) {
+            perror("open");
+            exit(EXIT_FAILURE);
+        }
+        // Redirect stdout to the file
+        if (dup2(fd, STDOUT_FILENO) < 0) {
+            perror("dup2");
+            exit(EXIT_FAILURE);
+        }
+        close(fd);
+        execvp(args[0], args);
+        perror("execvp");
+        exit(EXIT_FAILURE);
+    } else { // Parent process
+        waitpid(pid, NULL, 0);
+    }
+}
+
+void redirect_output_append(char *args[], char *output_file) {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) { // Child process
+        int fd = open(output_file, O_WRONLY | O_CREAT | O_APPEND, 0666);
+        if (fd < 0) {
+            perror("open");
+            exit(EXIT_FAILURE);
+        }
+        // Redirect stdout to the file
+        if (dup2(fd, STDOUT_FILENO) < 0) {
+            perror("dup2");
+            exit(EXIT_FAILURE);
+        }
+        close(fd);
+        execvp(args[0], args);
+        perror("execvp");
+        exit(EXIT_FAILURE);
+    } else { // Parent process
+        waitpid(pid, NULL, 0);
     }
 }
