@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
@@ -21,8 +20,9 @@ void sigquit_handler(int signum) {
 }
 
 int main(int argc, char *argv[]){	
-    char *clear[0];
+    char *clear[2]; // Adjusted the size to 2
     clear[0] = "clear";
+    clear[1] = NULL; // NULL terminated array
     execute(clear, 0); 
     char* history_path = get_history_file_path();
     char *args[MAX_ARGS+1];
@@ -36,6 +36,24 @@ int main(int argc, char *argv[]){
         input[strcspn(input, "\n")] = '\0';
         //printf("Command entered: %s\n", input);  //Testing confirmation
         com_history(input);
+        
+        if (input[0] == '#' && input[1] == '!') {
+            // Execute command specified in the shebang line
+            char *shebang_cmd = &input[2]; // Skip the '#!' characters
+            char *token = strtok(shebang_cmd, " ");
+            int i = 0;
+            while (token != NULL) {
+                args[i] = token;
+                token = strtok(NULL, " ");
+                i++;
+                if (i >= MAX_ARGS) {
+                    break;
+                }
+            }
+            args[i] = NULL;
+            execute(args, 0);
+            continue;
+        }
         
         char *token = strtok(input, " ");
         int i = 0;
@@ -115,4 +133,3 @@ int main(int argc, char *argv[]){
     }
     return EXIT_SUCCESS;
 }
-
