@@ -98,56 +98,7 @@ int main(int argc, char *argv[]){
         if (output_file == NULL) {
             execute(args, background);
         }
-/////////////////////////////////////////////////////////////
-
-        /*while (token != NULL) {
-            if (strcmp(token, "&") == 0) {
-                background = 1;
-            } else if (strcmp(token, ">") == 0) {
-                token = strtok(NULL, " ");
-                if (token == NULL) {
-                    fprintf(stderr, "Syntax error\n");
-                    break;
-                }
-                output_file = token;
-                break;
-            } else if (strcmp(token, "|") == 0) {
-                pipeline[num_commands] = NULL;
-                num_commands++;
-            } else {
-                if (num_commands == 0) {
-                    args[num_args++] = token;
-                } else {
-                    pipeline[num_commands++] = token;
-                }
-            }
-            token = strtok(NULL, " ");
-        }
-        if (num_commands == 0) {
-            args[num_args] = NULL;
-            if (strcmp(args[0], "cd") == 0) {
-                if (num_args < 2) {
-                    fprintf(stderr, "cd: missing argument\n");
-                } else if (chdir(args[1]) == -1) {
-                    perror("cd");
-                }
-            } else if (strcmp(args[0], "history") == 0) {
-                display_history();
-            } else if (strcmp(args[0], "exit") == 0) {
-                break;
-            } else {
-                if (output_file != NULL) {
-                    redirect_output(args, output_file);
-                } else {
-                    execute_command(args, background);
-                }
-            }
-        } else {
-            pipeline[num_commands] = NULL;
-            execute_pipeline(pipeline, num_commands + 1);
-        }
-    }*/
-////////////////////////////////////////////////////////////
+        
         // Check if the command is "cd"
         if (strcmp(args[0], "cd") == 0) {
             if(i < 2){
