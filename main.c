@@ -95,11 +95,7 @@ int main(int argc, char *argv[]){
             }
             j++;
         }
-        if (output_file == NULL) {
-            execute(args, background);
-        }
-        
-        // Check if the command is "cd"
+
         if (strcmp(args[0], "cd") == 0) {
             if(i < 2){
                 fprintf(stderr, "cd: missing argument\n");
@@ -107,6 +103,11 @@ int main(int argc, char *argv[]){
             change_dir(args); // Call the change_dir function
             continue; // Skip the rest of the loop
         }
+        else if (output_file == NULL) {
+            execute(args, background);
+        }
+        
+        // Check if the command is "cd"
         
         // Add code to handle other commands
 
