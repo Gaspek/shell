@@ -10,7 +10,6 @@
 
 #define MAX_ARGS 100
 
-// Signal handler function for SIGQUIT
 void sigquit_handler(int signum) {
     if (signum == SIGQUIT) {
         printf("Received SIGQUIT signal. Printing entire history:\n");
@@ -20,26 +19,17 @@ void sigquit_handler(int signum) {
 }
 
 int main(int argc, char *argv[]){	
-    char *clear[2]; // Adjusted the size to 2
+    char *clear[0];
     clear[0] = "clear";
-    clear[1] = NULL; // NULL terminated array
     execute(clear, 0); 
     char* history_path = get_history_file_path();
     char *args[MAX_ARGS+1];
     char input[BUFSIZ];
-    // Set up signal handler for SIGQUIT
     signal(SIGQUIT, sigquit_handler);
-    while(printf("%s> ", print_prompt()) && fgets(input, BUFSIZ, stdin) != NULL){ //Get input and print out FOR NOW PLACEHOLDER TO CHANGE
-        if (input[0] == '\n' || input[0] == ' ') {
-            continue; // Empty command
-        }
-        input[strcspn(input, "\n")] = '\0';
-        //printf("Command entered: %s\n", input);  //Testing confirmation
-        com_history(input);
-        
+    if(argc > 1){
+        printf("%s \n",returnFirstLine(argv[1]));
         if (input[0] == '#' && input[1] == '!') {
-            // Execute command specified in the shebang line
-            char *shebang_cmd = &input[2]; // Skip the '#!' characters
+            char *shebang_cmd = &input[2];
             char *token = strtok(shebang_cmd, " ");
             int i = 0;
             while (token != NULL) {
@@ -51,9 +41,17 @@ int main(int argc, char *argv[]){
                 }
             }
             args[i] = NULL;
-            execute(args, 0);
+            printFileContent("sssh.sh");
+        }
+        return EXIT_SUCCESS;
+    }
+    while(printf("%s> ", print_prompt()) && fgets(input, BUFSIZ, stdin) != NULL){
+        if (input[0] == '\n' || input[0] == ' ') {
             continue;
         }
+        input[strcspn(input, "\n")] = '\0';
+        //printf("Command entered: %s\n", input);  //Testing confirmation
+        com_history(input);
         
         char *token = strtok(input, " ");
         int i = 0;
@@ -78,8 +76,6 @@ int main(int argc, char *argv[]){
         int j = 0;
         int background = 0;
         char *output_file = NULL;
-        char *pipeline[MAX_ARGS];
-        int num_commands = 0;
         while(args[j] != NULL){
             if (strcmp(args[j], "&") == 0){
                 background = 1;
@@ -113,23 +109,16 @@ int main(int argc, char *argv[]){
             }
             j++;
         }
-
         if (strcmp(args[0], "cd") == 0) {
             if(i < 2){
                 fprintf(stderr, "cd: missing argument\n");
             }
-            change_dir(args); // Call the change_dir function
-            continue; // Skip the rest of the loop
+            change_dir(args); 
+            continue;
         }
         else if (output_file == NULL) {
             execute(args, background);
         }
-        
-        // Check if the command is "cd"
-        
-        // Add code to handle other commands
-
-        //execute_program(args[0],args[1]);
     }
     return EXIT_SUCCESS;
 }

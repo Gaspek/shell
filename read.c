@@ -31,3 +31,37 @@ void printFileContent(const char *filename) {
 
     close(fd);
 }
+
+
+char* returnFirstLine(const char *filename) {
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1) {
+        perror("Error 404");
+        exit(EXIT_FAILURE);
+    }
+
+    unsigned char buffer[32];
+    ssize_t bytes_read;
+    int i;
+    char* line = malloc(128);
+    if (line == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    do {
+        bytes_read = read(fd, buffer, sizeof(buffer));
+        for (i = 0; i < bytes_read; ++i) {
+            if (buffer[i] >= 32 && buffer[i] <= 126){
+                line[i] = buffer[i];
+            }
+            else if (buffer[i]=='\n'){
+                return line;
+            }
+            else
+                printf(" ");
+        }
+    } while (bytes_read > 0);
+    close(fd);
+    return NULL;
+}
